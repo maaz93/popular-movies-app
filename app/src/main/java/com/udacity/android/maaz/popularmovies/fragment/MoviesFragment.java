@@ -49,7 +49,7 @@ public class MoviesFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MovieData movieData = mMovieAdapter.getItem(position);
                 Intent intent = new Intent(getActivity().getApplicationContext(), MovieDetailActivity.class);
-                //intent.putExtra("Movie", movieData);
+                intent.putExtra(getString(R.string.movie_data), movieData);
                 startActivity(intent);
             }
         });

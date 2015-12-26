@@ -1,5 +1,7 @@
-
 package com.udacity.android.maaz.popularmovies.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,7 +9,8 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovieData {
+public class MovieData implements Parcelable {
+
 
     @SerializedName("poster_path")
     @Expose
@@ -52,8 +55,99 @@ public class MovieData {
     @Expose
     private Double voteAverage;
 
+    protected MovieData(Parcel in) {
+        posterPath = in.readString();
+        byte adultVal = in.readByte();
+        adult = adultVal == 0x02 ? null : adultVal != 0x00;
+        overview = in.readString();
+        releaseDate = in.readString();
+        if (in.readByte() == 0x01) {
+            genreIds = new ArrayList<Long>();
+            in.readList(genreIds, Long.class.getClassLoader());
+        } else {
+            genreIds = null;
+        }
+        id = in.readByte() == 0x00 ? null : in.readLong();
+        originalTitle = in.readString();
+        originalLanguage = in.readString();
+        title = in.readString();
+        backdropPath = in.readString();
+        popularity = in.readByte() == 0x00 ? null : in.readDouble();
+        voteCount = in.readByte() == 0x00 ? null : in.readLong();
+        byte videoVal = in.readByte();
+        video = videoVal == 0x02 ? null : videoVal != 0x00;
+        voteAverage = in.readByte() == 0x00 ? null : in.readDouble();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(posterPath);
+        if (adult == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (adult ? 0x01 : 0x00));
+        }
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
+        if (genreIds == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(genreIds);
+        }
+        if (id == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeLong(id);
+        }
+        dest.writeString(originalTitle);
+        dest.writeString(originalLanguage);
+        dest.writeString(title);
+        dest.writeString(backdropPath);
+        if (popularity == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(popularity);
+        }
+        if (voteCount == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeLong(voteCount);
+        }
+        if (video == null) {
+            dest.writeByte((byte) (0x02));
+        } else {
+            dest.writeByte((byte) (video ? 0x01 : 0x00));
+        }
+        if (voteAverage == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeDouble(voteAverage);
+        }
+    }
+
+    public static final Parcelable.Creator<MovieData> CREATOR = new Parcelable.Creator<MovieData>() {
+        @Override
+        public MovieData createFromParcel(Parcel in) {
+            return new MovieData(in);
+        }
+
+        @Override
+        public MovieData[] newArray(int size) {
+            return new MovieData[size];
+        }
+    };
     /**
-     * 
+     *
      * @return
      *     The posterPath
      */
@@ -62,7 +156,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param posterPath
      *     The poster_path
      */
@@ -71,7 +165,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The adult
      */
@@ -80,7 +174,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param adult
      *     The adult
      */
@@ -89,7 +183,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The overview
      */
@@ -98,7 +192,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param overview
      *     The overview
      */
@@ -107,7 +201,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The releaseDate
      */
@@ -116,7 +210,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param releaseDate
      *     The release_date
      */
@@ -125,7 +219,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The genreIds
      */
@@ -134,7 +228,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param genreIds
      *     The genre_ids
      */
@@ -143,7 +237,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The id
      */
@@ -152,7 +246,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param id
      *     The id
      */
@@ -161,7 +255,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The originalTitle
      */
@@ -170,7 +264,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param originalTitle
      *     The original_title
      */
@@ -179,7 +273,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The originalLanguage
      */
@@ -188,7 +282,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param originalLanguage
      *     The original_language
      */
@@ -197,7 +291,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The title
      */
@@ -206,7 +300,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param title
      *     The title
      */
@@ -215,7 +309,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The backdropPath
      */
@@ -224,7 +318,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param backdropPath
      *     The backdrop_path
      */
@@ -233,7 +327,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The popularity
      */
@@ -242,7 +336,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param popularity
      *     The popularity
      */
@@ -251,7 +345,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The voteCount
      */
@@ -260,7 +354,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param voteCount
      *     The vote_count
      */
@@ -269,7 +363,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The video
      */
@@ -278,7 +372,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param video
      *     The video
      */
@@ -287,7 +381,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @return
      *     The voteAverage
      */
@@ -296,7 +390,7 @@ public class MovieData {
     }
 
     /**
-     * 
+     *
      * @param voteAverage
      *     The vote_average
      */
