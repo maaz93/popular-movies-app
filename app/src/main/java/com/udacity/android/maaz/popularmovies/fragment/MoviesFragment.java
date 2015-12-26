@@ -1,5 +1,6 @@
 package com.udacity.android.maaz.popularmovies.fragment;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.udacity.android.maaz.popularmovies.BuildConfig;
 import com.udacity.android.maaz.popularmovies.R;
+import com.udacity.android.maaz.popularmovies.activity.MovieDetailActivity;
 import com.udacity.android.maaz.popularmovies.adapter.DiscoverMovieAdapter;
 import com.udacity.android.maaz.popularmovies.model.DiscoverMovieResults;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
@@ -41,6 +44,15 @@ public class MoviesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
         GridView movieGridView = (GridView) rootView.findViewById(R.id.gridview_movies);
+        movieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                MovieData movieData = mMovieAdapter.getItem(position);
+                Intent intent = new Intent(getActivity().getApplicationContext(), MovieDetailActivity.class);
+                //intent.putExtra("Movie", movieData);
+                startActivity(intent);
+            }
+        });
         movieGridView.setAdapter(mMovieAdapter);
 
         return rootView;
