@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.udacity.android.maaz.popularmovies.R;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
+import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -36,7 +37,7 @@ public class MovieDetailFragment extends Fragment {
 
         Intent intent = getActivity().getIntent();
         if(intent != null) {
-            MovieData movieData = intent.getParcelableExtra(getString(R.string.movie_data));
+            MovieData movieData = intent.getParcelableExtra(PopularMovieConstants.MOVIE_DATA);
             movieTitle.setText(movieData.getOriginalTitle());
             Picasso.with(getActivity()).load(BASE_POSTER_URI + movieData.getPosterPath()).into(posterImage);
             releaseDate.setText(movieData.getReleaseDate().split("-")[0]);

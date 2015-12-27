@@ -24,6 +24,7 @@ import com.udacity.android.maaz.popularmovies.activity.MovieDetailActivity;
 import com.udacity.android.maaz.popularmovies.adapter.DiscoverMovieAdapter;
 import com.udacity.android.maaz.popularmovies.model.DiscoverMovieResults;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
+import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class MoviesFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MovieData movieData = mMovieAdapter.getItem(position);
                 Intent intent = new Intent(getActivity().getApplicationContext(), MovieDetailActivity.class);
-                intent.putExtra(getString(R.string.movie_data), movieData);
+                intent.putExtra(PopularMovieConstants.MOVIE_DATA, movieData);
                 startActivity(intent);
             }
         });
