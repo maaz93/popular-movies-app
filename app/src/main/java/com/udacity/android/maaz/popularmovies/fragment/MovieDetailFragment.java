@@ -19,8 +19,6 @@ import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
  */
 public class MovieDetailFragment extends Fragment {
 
-    private static final String BASE_POSTER_URI = "http://image.tmdb.org/t/p/w342";
-
     public MovieDetailFragment() {
     }
 
@@ -39,9 +37,9 @@ public class MovieDetailFragment extends Fragment {
         if(intent != null) {
             MovieData movieData = intent.getParcelableExtra(PopularMovieConstants.MOVIE_DATA);
             movieTitle.setText(movieData.getOriginalTitle());
-            Picasso.with(getActivity()).load(BASE_POSTER_URI + movieData.getPosterPath()).into(posterImage);
+            Picasso.with(getActivity()).load(PopularMovieConstants.BASE_POSTER_URI_W342 + movieData.getPosterPath()).into(posterImage);
             releaseDate.setText(movieData.getReleaseDate().split("-")[0]);
-            rating.setText(movieData.getVoteAverage().toString() + " / 10");
+            rating.setText(movieData.getVoteAverage().toString() + "/10");
             plotSynopsis.setText(movieData.getOverview());
         }
         return rootView;

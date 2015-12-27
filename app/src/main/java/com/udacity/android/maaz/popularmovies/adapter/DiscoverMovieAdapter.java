@@ -10,12 +10,11 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.udacity.android.maaz.popularmovies.R;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
+import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
 
 import java.util.List;
 
 public class DiscoverMovieAdapter extends ArrayAdapter<MovieData> {
-
-    private static final String BASE_POSTER_URI = "http://image.tmdb.org/t/p/w185";
 
     public DiscoverMovieAdapter(Context context, List<MovieData> movieDataResults) {
         super(context, 0, movieDataResults);
@@ -30,7 +29,7 @@ public class DiscoverMovieAdapter extends ArrayAdapter<MovieData> {
         }
 
         ImageView movieView = (ImageView) convertView.findViewById(R.id.image_movie);
-        String moviePosterUri = BASE_POSTER_URI + movieData.getPosterPath();
+        String moviePosterUri = PopularMovieConstants.BASE_POSTER_URI_W185 + movieData.getPosterPath();
 
         Picasso.with(getContext()).load(moviePosterUri).into(movieView);
 
