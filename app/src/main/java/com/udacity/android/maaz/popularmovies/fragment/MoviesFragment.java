@@ -1,9 +1,11 @@
 package com.udacity.android.maaz.popularmovies.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,7 +64,8 @@ public class MoviesFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        new FetchMoviesTask().execute("popularity.desc");
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        new FetchMoviesTask().execute(preferences.getString(getString(R.string.pref_sorting_key), getString(R.string.pref_sorting_default)));
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, List<MovieData>> {
