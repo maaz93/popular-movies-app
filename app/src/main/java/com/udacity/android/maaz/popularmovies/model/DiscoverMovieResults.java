@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
+// The POJO classes were created using http://www.jsonschema2pojo.org/
 public class DiscoverMovieResults {
 
     @SerializedName("page")
