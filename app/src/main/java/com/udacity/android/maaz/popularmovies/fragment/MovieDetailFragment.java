@@ -1,6 +1,5 @@
 package com.udacity.android.maaz.popularmovies.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -22,6 +21,16 @@ public class MovieDetailFragment extends Fragment {
     public MovieDetailFragment() {
     }
 
+    public static MovieDetailFragment newInstance(MovieData movieData) {
+        MovieDetailFragment detailFragment = new MovieDetailFragment();
+
+        Bundle args = new Bundle();
+        args.putParcelable(PopularMovieConstants.MOVIE_DATA, movieData);
+        detailFragment.setArguments(args);
+
+        return detailFragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -33,9 +42,9 @@ public class MovieDetailFragment extends Fragment {
         TextView rating = (TextView) rootView.findViewById(R.id.text_user_rating);
         TextView plotSynopsis = (TextView) rootView.findViewById(R.id.text_synopsis);
 
-        Intent intent = getActivity().getIntent();
-        if(intent != null) {
-            MovieData movieData = intent.getParcelableExtra(PopularMovieConstants.MOVIE_DATA);
+        Bundle args = getArguments();
+        if(args != null) {
+            MovieData movieData = args.getParcelable(PopularMovieConstants.MOVIE_DATA);
             movieTitle.setText(movieData.getOriginalTitle());
             Picasso.with(getActivity()).load(PopularMovieConstants.BASE_POSTER_URI_W342 + movieData.getPosterPath()).into(posterImage);
             releaseDate.setText(movieData.getReleaseDate().split("-")[0]);

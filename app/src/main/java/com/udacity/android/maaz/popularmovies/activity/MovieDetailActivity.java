@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.udacity.android.maaz.popularmovies.R;
+import com.udacity.android.maaz.popularmovies.fragment.MovieDetailFragment;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
@@ -16,6 +17,14 @@ public class MovieDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (savedInstanceState == null) {
+            MovieDetailFragment detailFragment = new MovieDetailFragment();
+            detailFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_movie_detail, detailFragment)
+                    .commit();
+        }
     }
 
 }

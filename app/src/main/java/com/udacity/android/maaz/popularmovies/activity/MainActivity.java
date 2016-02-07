@@ -8,8 +8,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.udacity.android.maaz.popularmovies.R;
+import com.udacity.android.maaz.popularmovies.fragment.MovieDetailFragment;
+import com.udacity.android.maaz.popularmovies.fragment.MoviesFragment;
+import com.udacity.android.maaz.popularmovies.model.MovieData;
+import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMovieSelectedCallback {
+
+    private static final String DETAIL_FRAGMENT_TAG = "DETAIL_FRAGMENT_TAG";
+
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +25,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // This means that the detail fragment is visible due to tab layout
+        if (findViewById(R.id.fragment_movie_detail) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_movie_detail, new MovieDetailFragment(), DETAIL_FRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
     }
 
     @Override
@@ -40,5 +60,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onMovieSelected(MovieData movieData) {
+        if (mTwoPane) {
+            // Find the currently visible fragment
+            MovieDetailFragment visibleFragment = (MovieDetailFragment) getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
+
+            // Create the new fragment that will replace the existing one
+            MovieDetailFragment newFragment = MovieDetailFragment.newInstance(movieData);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(visibleFragment.getId(), newFragment, DETAIL_FRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, MovieDetailActivity.class)
+                    .putExtra(PopularMovieConstants.MOVIE_DATA, movieData);
+            startActivity(intent);
+        }
     }
 }

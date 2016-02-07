@@ -1,6 +1,6 @@
 package com.udacity.android.maaz.popularmovies.fragment;
 
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -22,11 +22,9 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.udacity.android.maaz.popularmovies.BuildConfig;
 import com.udacity.android.maaz.popularmovies.R;
-import com.udacity.android.maaz.popularmovies.activity.MovieDetailActivity;
 import com.udacity.android.maaz.popularmovies.adapter.DiscoverMovieAdapter;
 import com.udacity.android.maaz.popularmovies.model.DiscoverMovieResults;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
-import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,8 +33,24 @@ import java.util.List;
 public class MoviesFragment extends Fragment {
 
     private DiscoverMovieAdapter mMovieAdapter;
+    private OnMovieSelectedCallback mMovieSelectedCallback;
+
+    // The callback interface that all activities with this fragment msu implement
+    public interface OnMovieSelectedCallback {
+        public void onMovieSelected(MovieData movieData);
+    }
 
     public MoviesFragment() {
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (getActivity() instanceof OnMovieSelectedCallback) {
+            mMovieSelectedCallback = (OnMovieSelectedCallback) getActivity();
+        } else {
+            throw new ClassCastException(getActivity().toString() + " must implement MoviesFragment.OnMovieSelectedCallback");
+        }
     }
 
     @Override
@@ -51,9 +65,10 @@ public class MoviesFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MovieData movieData = mMovieAdapter.getItem(position);
-                Intent intent = new Intent(getActivity().getApplicationContext(), MovieDetailActivity.class);
+                mMovieSelectedCallback.onMovieSelected(movieData);
+                /*Intent intent = new Intent(getActivity().getApplicationContext(), MovieDetailActivity.class);
                 intent.putExtra(PopularMovieConstants.MOVIE_DATA, movieData);
-                startActivity(intent);
+                startActivity(intent);*/
             }
         });
         movieGridView.setAdapter(mMovieAdapter);
