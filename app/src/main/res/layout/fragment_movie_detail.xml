@@ -135,5 +135,14 @@
             android:layout_height="match_parent"
             android:layout_below="@id/text_reviews" />
 
+        <CheckBox
+            android:id="@+id/check_box_fav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/text_user_rating"
+            android:layout_alignStart="@+id/text_user_rating"
+            android:layout_below="@+id/text_user_rating"
+            android:text="Mark as favourite" />
+
     </RelativeLayout>
 </ScrollView>

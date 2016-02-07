@@ -10,10 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -25,6 +26,7 @@ import com.udacity.android.maaz.popularmovies.BuildConfig;
 import com.udacity.android.maaz.popularmovies.R;
 import com.udacity.android.maaz.popularmovies.adapter.ReviewAdapter;
 import com.udacity.android.maaz.popularmovies.adapter.TrailerAdapter;
+import com.udacity.android.maaz.popularmovies.data.MovieDbHelper;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
 import com.udacity.android.maaz.popularmovies.model.Review;
 import com.udacity.android.maaz.popularmovies.model.ReviewResults;
@@ -41,9 +43,12 @@ import java.util.List;
  */
 public class MovieDetailFragment extends Fragment {
 
-    private long mMovieId = -1;
+    private MovieData mMovieData;
     private TrailerAdapter mTrailerAdapter;
     private ReviewAdapter mReviewAdapter;
+    private MovieDbHelper mMovieDbHelper;
+    private boolean mFavChecked;
+    private boolean mIsFavourite;
 
     public MovieDetailFragment() {
     }
@@ -56,6 +61,12 @@ public class MovieDetailFragment extends Fragment {
         detailFragment.setArguments(args);
 
         return detailFragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mMovieDbHelper = new MovieDbHelper(getActivity());
     }
 
     @Override
@@ -73,8 +84,8 @@ public class MovieDetailFragment extends Fragment {
 
             MovieData movieData = args.getParcelable(PopularMovieConstants.MOVIE_DATA);
 
-            // Storing movie id in order to make the network calls
-            mMovieId = movieData.getId();
+            // Storing movie in order to make the network calls
+            mMovieData = movieData;
 
             // Setting details
             movieTitle.setText(movieData.getOriginalTitle());
@@ -102,6 +113,17 @@ public class MovieDetailFragment extends Fragment {
             ListView reviewsView = (ListView) rootView.findViewById(R.id.list_reviews);
             reviewsView.setAdapter(mReviewAdapter);
 
+            // Favourites
+            CheckBox favCheckBox = (CheckBox) rootView.findViewById(R.id.check_box_fav);
+            mIsFavourite = mMovieDbHelper.isFavourite(movieData.getId());
+            favCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mFavChecked = isChecked;
+                }
+            });
+            favCheckBox.setChecked(mIsFavourite);
+
         }
         return rootView;
 
@@ -110,9 +132,38 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (mMovieId != -1) {
-            new FetchTrailersTask().execute(String.valueOf(mMovieId));
-            new FetchReviewsTask().execute(String.valueOf(mMovieId));
+        if (mMovieData != null) {
+            new FetchTrailersTask().execute(String.valueOf(mMovieData.getId()));
+            new FetchReviewsTask().execute(String.valueOf(mMovieData.getId()));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Making sure the movie is saved as favourite only when required
+        if (mMovieDbHelper != null && mMovieData != null) {
+            if (mFavChecked) {
+                // Make sure this was not a favourite already
+                if (!mIsFavourite) {
+                    new AsyncTask<Void, Void, Void>() {
+                        protected Void doInBackground(Void... unused) {
+                            mMovieDbHelper.insertMovie(mMovieData);
+                            return null;
+                        }
+                    }.execute();
+                }
+            } else {
+                // Make sure the movie was a favourite
+                if (mIsFavourite) {
+                    new AsyncTask<Void, Void, Void>() {
+                        protected Void doInBackground(Void... unused) {
+                            mMovieDbHelper.deleteMovie(mMovieData.getId());
+                            return null;
+                        }
+                    }.execute();
+                }
+            }
         }
     }
 
@@ -158,8 +209,6 @@ public class MovieDetailFragment extends Fragment {
             if (trailers != null) {
                 mTrailerAdapter.clear();
                 mTrailerAdapter.addAll(trailers);
-            } else {
-                Toast.makeText(getActivity(), "There was a problem syncing with the servers. Please check your internet connection", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -206,8 +255,6 @@ public class MovieDetailFragment extends Fragment {
             if (reviews != null) {
                 mReviewAdapter.clear();
                 mReviewAdapter.addAll(reviews);
-            } else {
-                Toast.makeText(getActivity(), "There was a problem syncing with the servers. Please check your internet connection", Toast.LENGTH_LONG).show();
             }
         }
     }

@@ -12,12 +12,14 @@ import com.udacity.android.maaz.popularmovies.fragment.MovieDetailFragment;
 import com.udacity.android.maaz.popularmovies.fragment.MoviesFragment;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
 import com.udacity.android.maaz.popularmovies.utilities.PopularMovieConstants;
+import com.udacity.android.maaz.popularmovies.utilities.Utility;
 
 public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMovieSelectedCallback {
 
     private static final String DETAIL_FRAGMENT_TAG = "DETAIL_FRAGMENT_TAG";
 
     private boolean mTwoPane;
+    private String mSortOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        mSortOrder = Utility.getPreferredSortOrder(this);
 
         // This means that the detail fragment is visible due to tab layout
         if (findViewById(R.id.fragment_movie_detail) != null) {
@@ -60,6 +63,24 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String sortOrder = Utility.getPreferredSortOrder(this);
+
+        if (sortOrder != null && !sortOrder.equals(mSortOrder)) {
+            MoviesFragment moviesFragment = (MoviesFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_movie);
+            if (null != moviesFragment) {
+                moviesFragment.onSortOrderChanged();
+            }
+            /*MovieDetailFragment detailFragment = (MovieDetailFragment) getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            if (null != detailFragment) {
+                detailFragment.onLocationChanged(location);
+            }*/
+            mSortOrder = sortOrder;
+        }
     }
 
     @Override

@@ -1,11 +1,9 @@
 package com.udacity.android.maaz.popularmovies.fragment;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,8 +21,10 @@ import com.squareup.okhttp.Response;
 import com.udacity.android.maaz.popularmovies.BuildConfig;
 import com.udacity.android.maaz.popularmovies.R;
 import com.udacity.android.maaz.popularmovies.adapter.DiscoverMovieAdapter;
+import com.udacity.android.maaz.popularmovies.data.MovieDbHelper;
 import com.udacity.android.maaz.popularmovies.model.DiscoverMovieResults;
 import com.udacity.android.maaz.popularmovies.model.MovieData;
+import com.udacity.android.maaz.popularmovies.utilities.Utility;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +34,7 @@ public class MoviesFragment extends Fragment {
 
     private DiscoverMovieAdapter mMovieAdapter;
     private OnMovieSelectedCallback mMovieSelectedCallback;
+    private MovieDbHelper mMovieDbHelper;
 
     // The callback interface that all activities with this fragment msu implement
     public interface OnMovieSelectedCallback {
@@ -77,10 +78,21 @@ public class MoviesFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Initialize a DB helper instance for use in the fragment
+        mMovieDbHelper = new MovieDbHelper(getActivity());
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        new FetchMoviesTask().execute(preferences.getString(getString(R.string.pref_sorting_key), getString(R.string.pref_sorting_default)));
+        new FetchMoviesTask().execute(Utility.getPreferredSortOrder(getActivity()));
+    }
+
+    public void onSortOrderChanged() {
+        new FetchMoviesTask().execute(Utility.getPreferredSortOrder(getActivity()));
     }
 
     private class FetchMoviesTask extends AsyncTask<String, Void, List<MovieData>> {
@@ -92,30 +104,35 @@ public class MoviesFragment extends Fragment {
 
         @Override
         protected List<MovieData> doInBackground(String... params) {
-            Uri uri = Uri.parse(BASE_URL)
-                    .buildUpon()
-                    .appendQueryParameter(SORT_BY, params[0])
-                    .appendQueryParameter(API_KEY, BuildConfig.THE_MOVIE_DB_API_KEY)
-                    .build();
+            List<MovieData> movieDataList = null;
+            if (params[0].contentEquals("favourites")) {
+                movieDataList = mMovieDbHelper.fetchAllFavouriteMovies();
+            } else {
+                Uri uri = Uri.parse(BASE_URL)
+                        .buildUpon()
+                        .appendQueryParameter(SORT_BY, params[0])
+                        .appendQueryParameter(API_KEY, BuildConfig.THE_MOVIE_DB_API_KEY)
+                        .build();
 
-            OkHttpClient httpClient = new OkHttpClient();
-            Request request = new Request.Builder().url(uri.toString()).build();
-            Response response = null;
-            DiscoverMovieResults movieResults = null;
-            try {
-                response = httpClient.newCall(request).execute();
-                Gson gson = new Gson();
-                movieResults = gson.fromJson(response.body().string(), DiscoverMovieResults.class);
-            } catch (IOException e) {
-                Log.d(LOG_TAG, "Error making network call. " + e.getMessage());
-            } catch (JsonSyntaxException e) {
-                Log.d(LOG_TAG, "Error while parsing the JSON. " + e.getMessage());
-            }
+                OkHttpClient httpClient = new OkHttpClient();
+                Request request = new Request.Builder().url(uri.toString()).build();
+                Response response = null;
+                DiscoverMovieResults movieResults = null;
+                try {
+                    response = httpClient.newCall(request).execute();
+                    Gson gson = new Gson();
+                    movieResults = gson.fromJson(response.body().string(), DiscoverMovieResults.class);
+                } catch (IOException e) {
+                    Log.d(LOG_TAG, "Error making network call. " + e.getMessage());
+                } catch (JsonSyntaxException e) {
+                    Log.d(LOG_TAG, "Error while parsing the JSON. " + e.getMessage());
+                }
 
-            if (movieResults == null) {
-                return null;
+                if (movieResults != null) {
+                    movieDataList = movieResults.getResults();
+                }
             }
-            return movieResults.getResults();
+            return movieDataList;
         }
 
         @Override
